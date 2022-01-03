@@ -24,17 +24,24 @@ def gerarbastao(diferenca):
 
 monitores=[]
 
-for dir in args.directory :
-    monitores.append(Monitoramento(dir,os.listdir(dir)))
+
+def add_dirs(path):
+    files = os.listdir(path)
+    for f in files:
+        if os.path.isdir(os.path.join(path,f)):
+            add_dirs(os.path.join(path,f))
+    monitores.append(Monitoramento(path,files))
+
+for paths in args.directory :
+    add_dirs(paths)
 
 while True :
-    for i in range(0,len(monitores)):
-        print(monitores[i].getPath())
-        print("comecei a olhar as", datetime.now())
+    print("comecei a ronda as", datetime.now())
+    for i in range(0,len(monitores)):        
         atual = os.listdir(monitores[i].getPath())
         diferenca = list(set(atual) - set(monitores[i].getAnterior()))
         gerarbastao(diferenca)
         monitores[i].setAnterior(atual)
-        print("ja terminei. Vo pro proximo.",datetime.now())
+    print("ja terminei as",datetime.now())
     time.sleep(5)
 
