@@ -1,17 +1,37 @@
 #!/usr/bin/python
-import os,time
+# -*- coding: UTF-8 -*-
+import os,time,argparse
+
+class Monitoramento:
+    def __init__(self, path, anterior):
+        self.path = path
+        self.anterior = anterior
+    def getPath(self):
+        return self.path
+    def getAnterior(self):
+        return self.anterior
+    def setAnterior(self,anterior):
+        self.anterior=anterior
+
+parser = argparse.ArgumentParser(description="Monitora diretorios e gera arquivos de bastão conforme arquivos são recepcionados")
+parser.add_argument("directory",nargs='+', help="Diretorios a serem monitorados")
+args = parser.parse_args()
 
 def gerarbastao(diferenca):
     for f in diferenca:
         print("Arquivo",f,"criado ou alterado")
 
-path='teste'
+monitores=[]
 
-anterior = os.listdir(path)
+for dir in args.directory :
+    monitores.append(Monitoramento(dir,os.listdir(dir)))
 
 while True :
-    atual = os.listdir(path)
-    diferenca = list(set(atual) - set(anterior))
-    gerarbastao(diferenca)
-    anterior = atual
+    for i in range(0,len(monitores)):
+        print(monitores[i].getPath())
+        atual = os.listdir(monitores[i].getPath())
+        diferenca = list(set(atual) - set(monitores[i].getAnterior()))
+        gerarbastao(diferenca)
+        monitores[i].setAnterior(atual)
+    time.sleep(5)
 
