@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import os,time,argparse
+from datetime import datetime
 
 class Monitoramento:
     def __init__(self, path, anterior):
@@ -29,9 +30,11 @@ for dir in args.directory :
 while True :
     for i in range(0,len(monitores)):
         print(monitores[i].getPath())
+        print("comecei a olhar as", datetime.now())
         atual = os.listdir(monitores[i].getPath())
         diferenca = list(set(atual) - set(monitores[i].getAnterior()))
         gerarbastao(diferenca)
         monitores[i].setAnterior(atual)
+        print("ja terminei. Vo pro proximo.",datetime.now())
     time.sleep(5)
 
