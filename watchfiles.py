@@ -3,6 +3,17 @@
 import os,time,argparse
 from datetime import datetime
 
+class Filetime:
+    def __init__(self,path,file):
+        self.file = file
+        self.ctime = os.path.getctime(os.path.join(path,file))
+    
+    def __eq__(self, other):
+        return other.file == self.file and other.ctime == self.ctime
+
+    def __hash__(self):
+        return int(str(hash (self.file)) + str(hash(self.ctime)))
+
 class Monitoramento:
     def __init__(self, path, anterior):
         self.path = path
@@ -20,25 +31,33 @@ args = parser.parse_args()
 
 def gerarbastao(diferenca):
     for f in diferenca:
-        print("Arquivo",f,"criado ou alterado")
+        print("Arquivo",f.file,f.ctime,"criado ou alterado")
 
 monitores=[]
 
+def listdir(path):
+    return  os.listdir(path)
+
+def listdir2(path):
+    files = []
+    for f in listdir(path):
+        files.append(Filetime(path,f))
+    return files
 
 def add_dirs(path):
-    files = os.listdir(path)
+    files = listdir2(path)
     for f in files:
-        if os.path.isdir(os.path.join(path,f)):
-            add_dirs(os.path.join(path,f))
+        if os.path.isdir(os.path.join(path,f.file)):
+            add_dirs(os.path.join(path,f.file))
     monitores.append(Monitoramento(path,files))
 
 for paths in args.directory :
     add_dirs(paths)
 
 while True :
-    print("comecei a ronda as", datetime.now())
+    print(" Eu comecei as", datetime.now())
     for i in range(0,len(monitores)):        
-        atual = os.listdir(monitores[i].getPath())
+        atual = listdir2(monitores[i].getPath())
         diferenca = list(set(atual) - set(monitores[i].getAnterior()))
         gerarbastao(diferenca)
         monitores[i].setAnterior(atual)
